@@ -11,6 +11,7 @@ import (
 	"github.com/docker/docker/image"
 	"github.com/docker/docker/layer"
 	"github.com/docker/docker/pkg/idtools"
+	"github.com/docker/docker/pkg/streamformatter"
 	"github.com/docker/docker/pkg/stringid"
 	"github.com/docker/docker/registry"
 	"github.com/pkg/errors"
@@ -128,7 +129,8 @@ func (daemon *Daemon) pullForBuilder(ctx context.Context, name string, authConfi
 		pullRegistryAuth = &resolvedConfig
 	}
 
-	if err := daemon.pullImageWithReference(ctx, ref, nil, pullRegistryAuth, output); err != nil {
+	progressOutput := streamformatter.NewJSONProgressOutput(output, false)
+	if err := daemon.pullImageWithReference(ctx, ref, nil, pullRegistryAuth, progressOutput); err != nil {
 		return nil, err
 	}
 	return daemon.GetImage(name)

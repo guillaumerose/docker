@@ -20,6 +20,7 @@ import (
 	containerpkg "github.com/docker/docker/container"
 	"github.com/docker/docker/daemon/cluster/convert"
 	executorpkg "github.com/docker/docker/daemon/cluster/executor"
+	"github.com/docker/docker/pkg/streamformatter"
 	"github.com/docker/libnetwork"
 	"github.com/docker/swarmkit/agent/exec"
 	"github.com/docker/swarmkit/api"
@@ -88,7 +89,7 @@ func (c *containerAdapter) pullImage(ctx context.Context) error {
 	pr, pw := io.Pipe()
 	metaHeaders := map[string][]string{}
 	go func() {
-		err := c.backend.PullImage(ctx, c.container.image(), "", metaHeaders, authConfig, pw)
+		err := c.backend.PullImage(ctx, c.container.image(), "", metaHeaders, authConfig, streamformatter.NewJSONProgressOutput(pw, false))
 		pw.CloseWithError(err)
 	}()
 

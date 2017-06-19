@@ -106,7 +106,7 @@ func (s *imageRouter) postImagesCreate(ctx context.Context, w http.ResponseWrite
 			}
 		}
 
-		err = s.backend.PullImage(ctx, image, tag, metaHeaders, authConfig, output)
+		err = s.backend.PullImage(ctx, image, tag, metaHeaders, authConfig, streamformatter.NewJSONProgressOutput(output, false))
 	} else { //import
 		src := r.Form.Get("fromSrc")
 		// 'err' MUST NOT be defined within this block, we need any error
@@ -159,7 +159,7 @@ func (s *imageRouter) postImagesPush(ctx context.Context, w http.ResponseWriter,
 
 	w.Header().Set("Content-Type", "application/json")
 
-	if err := s.backend.PushImage(ctx, image, tag, metaHeaders, authConfig, output); err != nil {
+	if err := s.backend.PushImage(ctx, image, tag, metaHeaders, authConfig, streamformatter.NewJSONProgressOutput(output, false)); err != nil {
 		if !output.Flushed() {
 			return err
 		}

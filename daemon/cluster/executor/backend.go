@@ -1,7 +1,6 @@
 package executor
 
 import (
-	"io"
 	"time"
 
 	"github.com/docker/distribution"
@@ -15,6 +14,7 @@ import (
 	swarmtypes "github.com/docker/docker/api/types/swarm"
 	containerpkg "github.com/docker/docker/container"
 	clustertypes "github.com/docker/docker/daemon/cluster/provider"
+	"github.com/docker/docker/pkg/progress"
 	"github.com/docker/docker/plugin"
 	"github.com/docker/libnetwork"
 	"github.com/docker/libnetwork/cluster"
@@ -30,7 +30,7 @@ type Backend interface {
 	FindNetwork(idName string) (libnetwork.Network, error)
 	SetupIngress(clustertypes.NetworkCreateRequest, string) (<-chan struct{}, error)
 	ReleaseIngress() (<-chan struct{}, error)
-	PullImage(ctx context.Context, image, tag string, metaHeaders map[string][]string, authConfig *types.AuthConfig, outStream io.Writer) error
+	PullImage(ctx context.Context, image, tag string, metaHeaders map[string][]string, authConfig *types.AuthConfig, progress progress.Output) error
 	CreateManagedContainer(config types.ContainerCreateConfig) (container.ContainerCreateCreatedBody, error)
 	ContainerStart(name string, hostConfig *container.HostConfig, checkpoint string, checkpointDir string) error
 	ContainerStop(name string, seconds *int) error

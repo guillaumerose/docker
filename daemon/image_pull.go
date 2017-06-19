@@ -1,7 +1,6 @@
 package daemon
 
 import (
-	"io"
 	"strings"
 
 	dist "github.com/docker/distribution"
@@ -17,7 +16,7 @@ import (
 
 // PullImage initiates a pull operation. image is the repository name to pull, and
 // tag may be either empty, or indicate a specific tag to pull.
-func (daemon *Daemon) PullImage(ctx context.Context, image, tag string, metaHeaders map[string][]string, authConfig *types.AuthConfig, outStream io.Writer) error {
+func (daemon *Daemon) PullImage(ctx context.Context, image, tag string, metaHeaders map[string][]string, authConfig *types.AuthConfig, output progress.Output) error {
 	// Special case: "pull -a" may send an image name with a
 	// trailing :. This is ugly, but let's not break API
 	// compatibility.
@@ -42,10 +41,10 @@ func (daemon *Daemon) PullImage(ctx context.Context, image, tag string, metaHead
 		}
 	}
 
-	return daemon.pullImageWithReference(ctx, ref, metaHeaders, authConfig, outStream)
+	return daemon.pullImageWithReference(ctx, ref, metaHeaders, authConfig, output)
 }
 
-func (daemon *Daemon) pullImageWithReference(ctx context.Context, ref reference.Named, metaHeaders map[string][]string, authConfig *types.AuthConfig, outStream io.Writer) error {
+func (daemon *Daemon) pullImageWithReference(ctx context.Context, ref reference.Named, metaHeaders map[string][]string, authConfig *types.AuthConfig, output progress.Output) error {
 	// Include a buffer so that slow client connections don't affect
 	// transfer performance.
 	progressChan := make(chan progress.Progress, 100)
@@ -55,7 +54,7 @@ func (daemon *Daemon) pullImageWithReference(ctx context.Context, ref reference.
 	ctx, cancelFunc := context.WithCancel(ctx)
 
 	go func() {
-		progressutils.WriteDistributionProgress(cancelFunc, outStream, progressChan)
+		progressutils.WriteDistributionProgress(cancelFunc, output, progressChan)
 		close(writesDone)
 	}()
 

@@ -141,6 +141,7 @@ func (h *HijackedResponse) CloseWrite() error {
 // necessary to build images.
 type ImageBuildOptions struct {
 	Tags           []string
+	PushAs         string
 	SuppressOutput bool
 	RemoteContext  string
 	NoCache        bool

@@ -1,8 +1,6 @@
 package daemon
 
 import (
-	"io"
-
 	"github.com/docker/distribution/manifest/schema2"
 	"github.com/docker/distribution/reference"
 	"github.com/docker/docker/api/types"
@@ -13,7 +11,7 @@ import (
 )
 
 // PushImage initiates a push operation on the repository named localName.
-func (daemon *Daemon) PushImage(ctx context.Context, image, tag string, metaHeaders map[string][]string, authConfig *types.AuthConfig, outStream io.Writer) error {
+func (daemon *Daemon) PushImage(ctx context.Context, image, tag string, metaHeaders map[string][]string, authConfig *types.AuthConfig, output progress.Output) error {
 	ref, err := reference.ParseNormalizedNamed(image)
 	if err != nil {
 		return err
@@ -35,7 +33,7 @@ func (daemon *Daemon) PushImage(ctx context.Context, image, tag string, metaHead
 	ctx, cancelFunc := context.WithCancel(ctx)
 
 	go func() {
-		progressutils.WriteDistributionProgress(cancelFunc, outStream, progressChan)
+		progressutils.WriteDistributionProgress(cancelFunc, output, progressChan)
 		close(writesDone)
 	}()
 

@@ -32,6 +32,7 @@ import (
 	"github.com/docker/docker/pkg/mount"
 	"github.com/docker/docker/pkg/pools"
 	"github.com/docker/docker/pkg/progress"
+	"github.com/docker/docker/pkg/streamformatter"
 	"github.com/docker/docker/plugin/v2"
 	refstore "github.com/docker/docker/reference"
 	"github.com/opencontainers/go-digest"
@@ -113,7 +114,7 @@ func (pm *Manager) pull(ctx context.Context, ref reference.Named, config *distri
 		ctx, cancelFunc = context.WithCancel(ctx)
 
 		go func() {
-			progressutils.WriteDistributionProgress(cancelFunc, outStream, progressChan)
+			progressutils.WriteDistributionProgress(cancelFunc, streamformatter.NewJSONProgressOutput(outStream, false), progressChan)
 			close(writesDone)
 		}()
 
@@ -419,7 +420,7 @@ func (pm *Manager) Push(ctx context.Context, name string, metaHeader http.Header
 		ctx, cancelFunc = context.WithCancel(ctx)
 
 		go func() {
-			progressutils.WriteDistributionProgress(cancelFunc, outStream, progressChan)
+			progressutils.WriteDistributionProgress(cancelFunc, streamformatter.NewJSONProgressOutput(outStream, false), progressChan)
 			close(writesDone)
 		}()
 
